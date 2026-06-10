@@ -21,7 +21,7 @@ function ensureDb() {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api", async (req, res, next) => {
   try {
@@ -43,8 +43,11 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api") || /\.[a-zA-Z0-9]+$/.test(req.path)) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 async function startServer() {
